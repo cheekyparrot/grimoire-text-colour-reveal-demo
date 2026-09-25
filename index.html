@@ -24,10 +24,21 @@
       width: 100vw;
       height: 100vh;
       /* background-image: url('developer-in-the-grass.jpg'); */
-      background-image: url('Wheatfield_No-trampled-grass.png');
+      background-image:
+        url('Wheatfield_No-trampled-grass.png'),
+        linear-gradient(#fff, #fff);
+      background-size:
+        100vw auto,
+        100vw max(0px, calc(100vh - 100vw * 816 / 1488 + 2px));
+      background-position:
+        center bottom,
+        center top;
+      background-repeat: no-repeat;
+      z-index: -1;
+      /* background-image: url('Wheatfield_No-trampled-grass.png');
       background-size: cover;
       background-position: center;
-      z-index: -1;
+      z-index: -1; */
     }
 
     .content {
@@ -41,9 +52,19 @@
       margin-bottom: 1.5em;
       /* Glyphs become windows onto a fixed mask image.
         Mask may be background image, or a separate mask. */
-      background-image: url('WheatDev-Horizon-Mask.png');
+      background-image:
+        url('WheatDev-Horizon-Mask.png'),
+        linear-gradient(#fff, #fff);
+      background-size:
+        100vw auto,
+        100vw max(0px, calc(100vh - 100vw * 816 / 1488 + 2px));
+      background-position:
+        center bottom,
+        center top;
+      background-repeat: no-repeat;
+      /* background-image: url('WheatDev-Horizon-Mask.png');
       background-size: cover;
-      background-position: center;
+      background-position: center; */
       background-attachment: fixed;
       -webkit-background-clip: text;
       background-clip: text;
@@ -58,7 +79,7 @@
   <div class="background"></div>
 
   <main class="content">
-    <p>The absurd notion that gazing out on to an open landscape indicates inspiration is ridiculous.</p>
+    <p>The notion that gazing out on an open landscape is indicative of inspiration is ridiculous.</p>
     <p>But this is the way people think and we'd be fools not to take advantage of it.</p>
     <p>Our company is more inspired than any other, and that's why our landscape is even emptier than that of our competition.</p>
     <p>We are superior and you should find this website to be more than convincing evidence of that superiority.</p>
