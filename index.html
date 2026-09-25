@@ -24,7 +24,7 @@
       width: 100vw;
       height: 100vh;
       /* background-image: url('developer-in-the-grass.jpg'); */
-      background-image: url('IMG_2492.jpeg');
+      background-image: url('Wheatfield_No-trampled-grass.png');
       background-size: cover;
       background-position: center;
       z-index: -1;
@@ -39,17 +39,18 @@
       font-size: clamp(2rem, 5vw, 4.5rem);
       line-height: 1.25;
       margin-bottom: 1.5em;
-      /* Glyphs become windows onto a fixed copy of the image:
-         invert reproduces the difference polarity, contrast
-         saturates the grays toward pure black/white. */
-      background-image: url('IMG_2492.jpeg');
+      /* Glyphs become windows onto a fixed mask image.
+        Mask may be background image, or a separate mask. */
+      background-image: url('WheatDev-Horizon-Mask.png');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      filter: invert(1) contrast(3);
+      /* with BW mask this complexity is no longer necessary.
+      /* filter: invert(1) brightness(0.8) contrast(10); */
+      filter: invert(1)
     }
   </style>
 </head>
