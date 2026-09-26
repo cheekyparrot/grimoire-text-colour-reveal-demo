@@ -42,12 +42,16 @@
     }
 
     .content {
-      padding: 50vh 8vw;
-      max-width: 1100px;
+      /* Right-hand column: box is pushed to the right edge of the viewport */
+      width: min(42vw, 560px);
+      min-width: 300px;
+      margin-left: auto;
+      padding: 50vh 8vw 8vh 0;
     }
 
     .content p {
-      font-size: clamp(2rem, 5vw, 4.5rem);
+      /* font-size: clamp(2rem, 5vw, 4.5rem); */
+      font-size: clamp(1rem, 2.5vw, 2.5rem);
       line-height: 1.25;
       margin-bottom: 1.5em;
       /* Glyphs become windows onto a fixed mask image.
