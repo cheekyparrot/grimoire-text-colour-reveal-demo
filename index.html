@@ -46,7 +46,8 @@
       width: min(42vw, 560px);
       min-width: 300px;
       margin-left: auto;
-      padding: 50vh 8vw 120vh 0;
+      /* svh keeps the reveal stable when mobile browser chrome expands/collapses */
+      padding: 70svh 8vw 120svh 0;
     }
 
     .content p {
@@ -76,6 +77,12 @@
       /* with BW mask this complexity is no longer necessary.
       /* filter: invert(1) brightness(0.8) contrast(10); */
       filter: invert(1)
+    }
+
+    /* Gap after the first paragraph is viewport-based, so paragraph 2
+       always starts below the fold regardless of how paragraph 1 wraps */
+    .content p:first-child {
+      margin-bottom: 30svh;
     }
   </style>
 </head>
