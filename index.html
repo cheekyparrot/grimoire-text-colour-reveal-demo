@@ -17,30 +17,72 @@
     }
 
     /* Fixed background: the image stays put while content scrolls over it */
+    /* Sky is extended with a white sky box above. */
     .background {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      /* background-image: url('developer-in-the-grass.jpg'); */
-      background-image: url('IMG_2492.jpeg');
+      background-image:
+        url('Background.jpeg'),
+        linear-gradient(#fff, #fff);
+      background-size:
+        100vw auto,
+        100vw max(0px, calc(100vh - 100vw * 4032 / 3024 + 2px));
+      background-position:
+        center bottom,
+        center top;
+      background-repeat: no-repeat;
+      z-index: -1;
+      /* background-image: url('Wheatfield_No-trampled-grass.png');
       background-size: cover;
       background-position: center;
-      z-index: -1;
+      z-index: -1; */
     }
 
     .content {
-      mix-blend-mode: difference;
-      color: #fff;
-      padding: 50vh 8vw;
-      max-width: 1100px;
+      /* Right-hand column: box is pushed to the right edge of the viewport */
+      width: min(42vw, 560px);
+      min-width: 300px;
+      margin-left: auto;
+      /* svh keeps the reveal stable when mobile browser chrome expands/collapses */
+      padding: 70svh 8vw 120svh 0;
     }
 
     .content p {
-      font-size: clamp(2rem, 5vw, 4.5rem);
+      /* font-size: clamp(2rem, 5vw, 4.5rem); */
+      font-size: clamp(1rem, 2.5vw, 2.5rem);
       line-height: 1.25;
       margin-bottom: 1.5em;
+      /* Glyphs become windows onto a fixed mask image.
+        Mask may be background image, or a separate mask. */
+      background-image:
+        url('Text-Color-Mask.png'),
+        linear-gradient(#fff, #fff);
+      background-size:
+        100vw auto,
+        100vw max(0px, calc(100vh - 100vw * 4032 / 3024 + 2px));
+      background-position:
+        center bottom,
+        center top;
+      background-repeat: no-repeat;
+      /* background-image: url('WheatDev-Horizon-Mask.png');
+      background-size: cover;
+      background-position: center; */
+      background-attachment: fixed;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      /* with BW mask this complexity is no longer necessary.
+      /* filter: invert(1) brightness(0.8) contrast(10); */
+      /* filter: invert(1) */
+    }
+
+    /* Gap after the first paragraph is viewport-based, so paragraph 2
+       always starts below the fold regardless of how paragraph 1 wraps */
+    .content p:first-child {
+      margin-bottom: 30svh;
     }
   </style>
 </head>
@@ -48,7 +90,7 @@
   <div class="background"></div>
 
   <main class="content">
-    <p>The absurd notion that gazing out on to an open landscape indicates inspiration is ridiculous.</p>
+    <p>The notion that gazing out on an open landscape is indicative of inspiration is ridiculous.</p>
     <p>But this is the way people think and we'd be fools not to take advantage of it.</p>
     <p>Our company is more inspired than any other, and that's why our landscape is even emptier than that of our competition.</p>
     <p>We are superior and you should find this website to be more than convincing evidence of that superiority.</p>
