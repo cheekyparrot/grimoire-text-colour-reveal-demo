@@ -17,22 +17,17 @@
     }
 
     /* Fixed background: the image stays put while content scrolls over it */
-    /* Sky is extended with a white sky box above. */
     .background {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background-image:
-        url('Background.jpeg'),
-        linear-gradient(#fff, #fff);
+      background-image: url('Background.jpeg');
       background-size:
-        100vw auto,
-        100vw max(0px, calc(100vh - 100vw * 4032 / 3024 + 2px));
+        100vw auto;
       background-position:
-        center bottom,
-        center top;
+        center bottom;
       background-repeat: no-repeat;
       z-index: -1;
       /* background-image: url('Wheatfield_No-trampled-grass.png');
@@ -57,15 +52,11 @@
       margin-bottom: 1.5em;
       /* Glyphs become windows onto a fixed mask image.
         Mask may be background image, or a separate mask. */
-      background-image:
-        url('Text-Color-Mask.png'),
-        linear-gradient(#fff, #fff);
+      background-image: url('Text-Color-Mask.png');
       background-size:
-        100vw auto,
-        100vw max(0px, calc(100vh - 100vw * 4032 / 3024 + 2px));
+        100vw auto;
       background-position:
-        center bottom,
-        center top;
+        center bottom;
       background-repeat: no-repeat;
       /* background-image: url('WheatDev-Horizon-Mask.png');
       background-size: cover;
@@ -74,9 +65,7 @@
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      /* with BW mask this complexity is no longer necessary.
-      /* filter: invert(1) brightness(0.8) contrast(10); */
-      /* filter: invert(1) */
+      /* Text-Color-Mask.png dictates text color directly. */
     }
 
     /* Gap after the first paragraph is viewport-based, so paragraph 2
