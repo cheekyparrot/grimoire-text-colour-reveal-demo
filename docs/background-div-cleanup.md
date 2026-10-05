@@ -29,8 +29,8 @@ blend-mode version. It is not safe to delete:
   mask), so deleting the div does not immediately "break" anything in an
   obvious way.
 - But the visible scene disappears, leaving `body`'s `background: #000`.
-  The demo loses the context that makes the reveal read as "text colored
-  by the landscape."
+  The demo loses the context that makes the mask-derived text colour read
+  as a reveal.
 
 If the div ever needs to go, the replacement is a refactor, not a removal:
 move the backdrop onto `body` itself with `background-attachment: fixed`
