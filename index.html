@@ -11,18 +11,30 @@
       box-sizing: border-box;
     }
 
+    /* Rigid scroll ends: during rubber-banding the document content and
+       the twin follow different sources of truth (the bounce moves the
+       visual scroll layer but not the clamped offset the scroll()
+       timeline reads), so the two copies can diverge at the extremes of
+       a trackpad/touch scroll. Disabling overscroll removes the
+       divergence at the cost of the native elastic feel. */
+    html {
+      overscroll-behavior: none;
+    }
+
     body {
       font-family: Georgia, 'Times New Roman', serif;
       background: #000;
     }
 
-    /* Fixed background: the image stays put while content scrolls over it */
+    /* Fixed background: the image stays put while content scrolls over it.
+       inset: 0 (not height: 100vh) keeps the box tracking the live layout
+       viewport: on iOS the URL bar expands/collapses the viewport while
+       100vh stays pinned to the large viewport height, which would anchor
+       this image's bottom lower than the visible bottom — out of step
+       with the mask, which anchors to .twin-overlay's inset-0 box. */
     .background {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      inset: 0;
       background-image: url('Background.jpeg');
       background-size:
         100vw auto;
