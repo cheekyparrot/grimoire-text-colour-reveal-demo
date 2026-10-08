@@ -41,6 +41,10 @@ so:
 4. **A per-breakpoint variant whenever the backdrop has one.** Each
    backdrop image/crop gets its own mask, wired through `--mask-image` /
    `--mask-size` / `--mask-position`.
+5. **A same-origin URL.** `mask-image: url()` loads with CORS, unlike
+   `background-image`. Over `file://` (opaque "null" origin) every
+   browser silently blocks the mask and the overlay paints nothing —
+   the demo must be served over HTTP for the mask to appear at all.
 
 ## How to make it
 

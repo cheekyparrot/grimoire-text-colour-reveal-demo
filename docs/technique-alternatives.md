@@ -219,6 +219,21 @@ document.querySelector('.twin-overlay').appendChild(twin);
 The lockstep sync is the fragile part — if the two copies ever reflow
 differently (font loading, width), they drift apart.
 
+Implementation findings (Safari 26.6, October 2026): the sync is exact on
+load, but two WebKit behaviors had to be worked around in the demo's
+load-time script. First, the scroll timeline's range and the transform's
+percentage base are captured when the animation binds and are not
+re-read after layout changes, so a window resize permanently desyncs
+the twin until the animation is re-bound (toggling `animation-name`
+after the resize settles). Second, without `will-change: transform` the
+animated clone shares a compositing path with the masked overlay and
+its frame updates can fall out of step with the document scroll,
+flashing the base copy's glyph edges through the twin mid-scroll; its
+own composited layer fixes that. Both are invisible to
+`getComputedStyle` diagnostics — computed values read correct while
+pixels diverge — so variant testing against live rendering was needed
+to isolate them.
+
 ## Recommendation
 
 For a demo where the effect is the point: **option 1** as the primary —

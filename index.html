@@ -41,29 +41,82 @@
       padding: 70svh 8vw 120svh 0;
     }
 
+    /* The coverage mask asset is a geometric twin of the backdrop image:
+       same scene, same dimensions, carrying alpha coverage instead of
+       colour. These values mirror .background's own; mask and backdrop
+       must stay in lockstep (per breakpoint, if there is ever more than
+       one backdrop configuration). */
+    :root {
+      --mask-image: url('Sky-Coverage-Mask.png');
+      --mask-size: 100vw auto;
+      --mask-position: center bottom;
+    }
+
     .content p {
       /* font-size: clamp(2rem, 5vw, 4.5rem); */
       font-size: clamp(1rem, 2.5vw, 2.5rem);
       line-height: 1.25;
       margin-bottom: 1.5em;
-      /* Glyphs become windows onto a fixed mask image,
-        which dictates text color directly. */
-      background-image: url('Text-Color-Mask.png');
-      background-size:
-        100vw auto;
-      background-position:
-        center bottom;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+      /* Base copy in the land-side colour. Wherever the coverage mask is
+         transparent (below the horizon), this is the text that shows. */
+      color: #FFFAD8;
     }
 
     /* Gap after the first paragraph is viewport-based, so paragraph 2
        always starts below the fold regardless of how paragraph 1 wraps */
     .content p:first-child {
       margin-bottom: 30svh;
+    }
+
+    /* Sky-coloured twin: a fixed, viewport-sized overlay painted through
+       an alpha coverage mask (opaque above the horizon, transparent
+       below). Where the mask is opaque the twin text shows; where it is
+       transparent the base text shows through it. Neither this layer nor
+       the backdrop uses background-attachment, so the property iOS Safari
+       breaks is never touched. */
+    .twin-overlay {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      user-select: none;
+      -webkit-mask-image: var(--mask-image);
+      mask-image: var(--mask-image);
+      -webkit-mask-size: var(--mask-size);
+      mask-size: var(--mask-size);
+      -webkit-mask-position: var(--mask-position);
+      mask-position: var(--mask-position);
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+    }
+
+    /* Lockstep sync: the clone's height equals the document's scroll
+       height, so translating it by -100% + 100vh scrolls it by exactly
+       the amount the page has scrolled. No measuring, no listeners. */
+    .twin-overlay .content {
+      animation: twin-scroll linear both;
+      animation-timeline: scroll(root);
+      /* Own composited layer: without this, the twin's frame updates can
+         land out of step with the document scroll, flashing the base
+         copy's glyph edges through the twin during scrolling. */
+      will-change: transform;
+    }
+
+    .twin-overlay .content p {
+      color: #925006;
+    }
+
+    @keyframes twin-scroll {
+      from { transform: translateY(0); }
+      to { transform: translateY(calc(-100% + 100vh)); }
+    }
+
+    /* Browsers without scroll-driven animations keep the static base
+       colour only; a stationary twin would sit over the wrong text. */
+    @supports not (animation-timeline: scroll()) {
+      .twin-overlay {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -76,5 +129,36 @@
     <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
     <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
   </main>
+
+  <!-- Fixed layer the JS clone is placed in, clipped by the sky
+       coverage mask. Empty without JavaScript: the base text above is
+       then the whole page. -->
+  <div class="twin-overlay"></div>
+
+  <script>
+    // Option 7, "fixed-mask twin text" (docs/technique-alternatives.md):
+    // duplicate the content once at load. The clone inherits the same
+    // stylesheet and lays out against the same viewport width, so it
+    // stays registered with the original; the scroll() timeline does
+    // all the syncing with zero per-frame code.
+    const twin = document.querySelector('.content').cloneNode(true);
+    twin.setAttribute('aria-hidden', 'true');
+    document.querySelector('.twin-overlay').appendChild(twin);
+
+    // Re-bind the animation after a resize: WebKit captures the scroll
+    // timeline's range and the transform's percentage base when the
+    // animation is created and does not re-read them when layout
+    // changes, which permanently desyncs the twin. Toggling
+    // animation-name forces a fresh binding against the new geometry.
+    let rebind;
+    addEventListener('resize', () => {
+      clearTimeout(rebind);
+      rebind = setTimeout(() => {
+        twin.style.animationName = 'none';
+        void twin.offsetWidth; // flush so the reset takes effect
+        twin.style.animationName = '';
+      }, 150);
+    });
+  </script>
 </body>
 </html>
