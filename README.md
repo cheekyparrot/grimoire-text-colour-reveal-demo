@@ -51,6 +51,15 @@ samples its colour from the same point of the scene it covers — without
 
 ## Details worth knowing
 
+- **iOS Safari fails hard.** It ignores `background-attachment: fixed`,
+  and when that declaration is combined with `background-clip: text`,
+  WebKit refuses to paint the clipped background at all: the paragraphs
+  are completely invisible, not just misaligned with the backdrop. The
+  backdrop itself is unaffected (`position: fixed` works fine). Confirmed
+  on the Xcode iOS Simulator by single-property toggling — see
+  [`docs/ios-safari-fixed-attachment.md`](docs/ios-safari-fixed-attachment.md)
+  for the full diagnosis and the fix options. Until one of those fixes
+  lands, iOS visitors see no text.
 - The negative `z-index` on `.background` is load-bearing: `.content` is
   unpositioned, so without it the positioned backdrop div would paint on
   top of the paragraphs' clipped-to-text fill and the text would vanish.
