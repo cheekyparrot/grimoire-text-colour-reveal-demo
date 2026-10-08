@@ -120,7 +120,13 @@
 
     @keyframes twin-scroll {
       from { transform: translateY(0); }
-      to { transform: translateY(calc(-100% + 100vh)); }
+      /* 100dvh, not 100vh: the scroll timeline's range is measured against
+         the live viewport, which shrinks when iOS expands the URL bar,
+         while 100vh stays pinned to the large viewport. That mismatch
+         desyncs the twin proportionally to scroll depth; dvh keeps the
+         end keyframe consistent with the timeline's range at every
+         toolbar state. */
+      to { transform: translateY(calc(-100% + 100dvh)); }
     }
 
     /* Browsers without scroll-driven animations keep the static base
