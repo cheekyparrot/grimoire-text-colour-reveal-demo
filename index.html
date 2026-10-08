@@ -11,16 +11,6 @@
       box-sizing: border-box;
     }
 
-    /* Rigid scroll ends: during rubber-banding the document content and
-       the twin follow different sources of truth (the bounce moves the
-       visual scroll layer but not the clamped offset the scroll()
-       timeline reads), so the two copies can diverge at the extremes of
-       a trackpad/touch scroll. Disabling overscroll removes the
-       divergence at the cost of the native elastic feel. */
-    html {
-      overscroll-behavior: none;
-    }
-
     body {
       font-family: Georgia, 'Times New Roman', serif;
       background: #000;
@@ -103,7 +93,7 @@
     }
 
     /* Lockstep sync: the clone's height equals the document's scroll
-       height, so translating it by -100% + 100vh scrolls it by exactly
+       height, so translating it by -100% + 100dvh scrolls it by exactly
        the amount the page has scrolled. No measuring, no listeners. */
     .twin-overlay .content {
       animation: twin-scroll linear both;

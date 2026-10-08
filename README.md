@@ -54,9 +54,11 @@ in lockstep with zero per-frame code.
 ## Pixel alignment
 
 The mask and the backdrop use identical sizing and positioning rules —
-`100vw auto`, `center bottom` — so they are **pixel-aligned**: the
-boundary the text crosses is the mask's actual silhouette sitting
-exactly on the backdrop's own horizon, ragged edges included.
+`100vw auto`, `center bottom` — on identically-sized boxes (both
+`inset: 0`, so on iOS they track the live viewport as the URL bar
+expands and collapses), so they are **pixel-aligned**: the boundary the
+text crosses is the mask's actual silhouette sitting exactly on the
+backdrop's own horizon, ragged edges included.
 
 `Sky-Coverage-Mask.png` is a coverage twin of the scene in
 `Background.jpeg`: same scene, same dimensions, same crop, carrying alpha
@@ -83,13 +85,13 @@ crop per breakpoint, the mask switches with it, via the
   animation-timeline: scroll(root);
 }
 @keyframes twin-scroll {
-  to { transform: translateY(calc(-100% + 100vh)); }
+  to { transform: translateY(calc(-100% + 100dvh)); }
 }
 ```
 
 The end keyframe is what makes the sync measurement-free: the clone
 stack's height equals the document's scroll height, so translating it by
-`-100% + 100vh` at the end of the scroll range scrolls it by exactly the
+`-100% + 100dvh` at the end of the scroll range scrolls it by exactly the
 amount the page itself has scrolled.
 
 ## The tiny JS clone
@@ -155,8 +157,19 @@ just the base text in a single colour.
   top of the paragraphs and the text would vanish.
 - The first paragraph gets a viewport-based bottom margin (`30svh`) so
   the second always starts below the fold, no matter how the first wraps.
-- Viewport units use `svh` so the reveal stays stable when mobile browser
-  chrome expands and collapses.
+- **Viewport-anchored geometry must measure the live viewport, never
+  `vh`.** On iOS, the URL bar expands and collapses the viewport that
+  the scroll timeline's range and fixed boxes measure against, while
+  `100vh` stays pinned to the large viewport height. Two `vh`-based
+  measurements broke before this rule was established: the backdrop's
+  `height: 100vh` anchored its image below the visible bottom, out of
+  step with the mask at the top of the scroll; and the twin's end
+  keyframe (`-100% + 100vh`) travelled a large-viewport distance
+  across a live-viewport timeline range, desyncing the two copies in
+  proportion to scroll depth. Both are fixed by the live measure —
+  `inset: 0` for the backdrop's box, `100dvh` in the keyframe — and
+  the content's paddings use `svh`, so the document height the clone
+  mirrors stays stable across toolbar states.
 - Beyond the viewport, the page falls back to `body`'s black background —
   the mask and the backdrop share this behaviour, so the twin is never
   asked to cover text the backdrop is not covering.
