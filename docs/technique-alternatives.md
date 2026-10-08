@@ -1,7 +1,13 @@
 # Alternatives to the mask-image technique: keeping text legible across the horizon
 
-Context: the current demo (`background-clip: text` over a viewport-fixed
-mask image) is broken on iOS Safari — WebKit refuses to paint the clipped
+Context: Derives from a previous demo (`background-clip: text` over a viewport-fixed
+mask image). That technique is broken on iOS Safari. That breakage is what triggered 
+this survey. 
+
+iOS Safari support is not a founding requirement for this project but it 
+was important enough to warrant exploring alternatives.
+
+iOS Safari — WebKit refuses to paint the clipped
 background at all when it is combined with `background-attachment: fixed`
 (see [`ios-safari-fixed-attachment.md`](ios-safari-fixed-attachment.md)).
 This document surveys alternate techniques for the same goal: a fixed
