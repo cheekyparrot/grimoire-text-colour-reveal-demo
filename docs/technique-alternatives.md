@@ -37,7 +37,7 @@ Granularity levels, coarsest to finest:
 | 4 | IntersectionObserver / scroll classes | small | any | per element or per word | works everywhere |
 | 5 | Text stroke / shadow scrim instead of color change | none | single color | n/a (different effect) | works everywhere |
 | 6 | `mix-blend-mode: difference` (the original technique) | none | black/white only | per pixel | works everywhere |
-| 7 | Fixed duplicate layer, clipped by the recoloured mask asset | none (markup duplication) | any | per pixel | iOS 26+ |
+| 7 | Fixed-mask twin text | none (markup duplication) | any | per pixel | iOS 26+ |
 
 ### 1. Scroll-driven animations — the option that did not exist at the last survey
 
@@ -143,7 +143,7 @@ black/white is the only member that guarantees contrast against both
 halves. Colored text under `difference` yields photo-negative hues, not
 controlled colors. So: acceptable fallback, not the path to colored text.
 
-### 7. Option 2 refined: the mask as the wrapper's clip — exact, not rough
+### 7. Fixed-mask twin text (option 2 refined: the mask as the wrapper's clip)
 
 Option 2 as written above has two accuracy limits, both accepted at the time:
 
@@ -182,11 +182,42 @@ geometric twins). In CSS terms, one custom-property set per breakpoint
 backdrop's own values; there is no horizon-Y formula to derive, because
 the geometry is data, not calculation.
 
-Remaining costs are those of option 2: duplicated markup (or a tiny JS
-clone), the `scroll()`-timeline lockstep sync (iOS 26+), and an
-`@supports`-guarded fallback to a static colour. The lockstep sync is
-the fragile part — if the two copies ever reflow differently (font
-loading, width), they drift apart.
+Remaining costs are those of option 2: the `scroll()`-timeline lockstep
+sync (iOS 26+), an `@supports`-guarded fallback to a static colour, and
+duplicated markup — which need not be hand-written:
+
+**The tiny JS clone.** Duplication is a construction problem, not a
+runtime one, so it can run once at page load while the `scroll()` timeline
+does all the syncing:
+
+```js
+const twin = document.querySelector('.content').cloneNode(true);
+twin.setAttribute('aria-hidden', 'true');
+document.querySelector('.twin-overlay').appendChild(twin);
+```
+
+- The twin stays registered with the original without any per-frame
+  code: it inherits the same stylesheet, and the fixed overlay is
+  `inset: 0` — the same containing-block width the original lays out
+  against — so line breaks come out identical. The clone stack's height
+  also matches the document's scroll height, which is what makes the
+  `translateY(calc(-100% + 100vh))` end keyframe correct without
+  measuring anything.
+- The overlay should be `pointer-events: none; user-select: none` so
+  selection and clicks only ever hit the base copy; the twin carries
+  `aria-hidden` so screen readers do not read the text twice.
+- Building the overlay in JS makes the no-JS case a clean fallback for
+  free: browsers without JS just see the base single-colour text — no
+  half-painted layer to guard against. The cost is that "no JavaScript"
+  becomes "a few lines at load, no scroll listeners" rather than
+  literally none.
+- The one genuine regression: if the text ever becomes dynamic (CMS,
+  client-side rendering, a font swap that reflows after the clone), the
+  twin silently goes stale — re-clone on mutation or font load. For a
+  static demo, a non-issue.
+
+The lockstep sync is the fragile part — if the two copies ever reflow
+differently (font loading, width), they drift apart.
 
 ## Recommendation
 
@@ -199,8 +230,8 @@ a plain static color.
 If per-scanline fidelity across the straddling moment is what makes the
 current demo, option 2 is the pure-CSS version and option 3 is the
 works-everywhere version; when the horizon is ragged or the backdrop
-configuration varies by breakpoint, option 7 is option 2's per-pixel-exact
-refinement.
+configuration varies by breakpoint, option 7 — fixed-mask twin text — is
+option 2's per-pixel-exact refinement.
 
 One open question: what fraction of real iOS visitors sits below iOS 26
 — devices capped at iOS 18 cannot get scroll-driven animations, so if
