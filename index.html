@@ -43,13 +43,15 @@
       padding: 70svh 8vw 120svh 0;
     }
 
-    /* The coverage mask asset is a geometric twin of the backdrop image:
+    /* The two coverage masks are geometric twins of the backdrop image:
        same scene, same dimensions, carrying alpha coverage instead of
-       colour. These values mirror .background's own; mask and backdrop
-       must stay in lockstep (per breakpoint, if there is ever more than
-       one backdrop configuration). */
+       colour — one opaque over the sky, the other over the land, exact
+       complements. The size/position values mirror .background's own;
+       masks and backdrop must stay in lockstep (per breakpoint, if there
+       is ever more than one backdrop configuration). */
     :root {
-      --mask-image: url('Sky-Coverage-Mask.png');
+      --sky-mask-image: url('Sky-Coverage-Mask.png');
+      --land-mask-image: url('Land-Coverage-Mask.png');
       --mask-size: 100vw auto;
       --mask-position: center bottom;
     }
@@ -59,8 +61,9 @@
       font-size: clamp(1rem, 2.5vw, 2.5rem);
       line-height: 1.25;
       margin-bottom: 1.5em;
-      /* Base copy in the land-side colour. Wherever the coverage mask is
-         transparent (below the horizon), this is the text that shows. */
+      /* The land-side colour: what this in-flow copy shows while it is
+         the fallback (no JS, no scroll-driven animations), and what the
+         land twin paints once the clones are live. */
       color: #FFFAD8;
     }
 
@@ -70,20 +73,30 @@
       margin-bottom: 30svh;
     }
 
-    /* Sky-coloured twin: a fixed, viewport-sized overlay painted through
-       an alpha coverage mask (opaque above the horizon, transparent
-       below). Where the mask is opaque the twin text shows; where it is
-       transparent the base text shows through it. Neither this layer nor
-       the backdrop uses background-attachment, so the property iOS Safari
-       breaks is never touched. */
+    /* Once the clones are built, the in-flow base becomes invisible ink.
+       It still carries layout (the document height the sync math depends
+       on), selection, and screen-reader text — but it must not paint:
+       an unmasked copy over the sky is the very glitch this
+       architecture exists to remove. Gated on both the script's twins
+       class and the CSS feature test, so any failure path leaves the
+       visible base as the fallback. */
+    @supports (animation-timeline: scroll()) {
+      .twins .content p {
+        color: transparent;
+      }
+    }
+
+    /* Complementary twin overlays: each colour of text is confined to
+       its own side of the horizon by a viewport-anchored coverage mask,
+       so no copy can ever paint the wrong colour in the wrong region.
+       Neither layer nor the backdrop uses background-attachment, so the
+       property iOS Safari breaks is never touched. */
     .twin-overlay {
       position: fixed;
       inset: 0;
       overflow: hidden;
       pointer-events: none;
       user-select: none;
-      -webkit-mask-image: var(--mask-image);
-      mask-image: var(--mask-image);
       -webkit-mask-size: var(--mask-size);
       mask-size: var(--mask-size);
       -webkit-mask-position: var(--mask-position);
@@ -92,20 +105,35 @@
       mask-repeat: no-repeat;
     }
 
+    .twin-overlay.sky {
+      -webkit-mask-image: var(--sky-mask-image);
+      mask-image: var(--sky-mask-image);
+    }
+
+    .twin-overlay.land {
+      -webkit-mask-image: var(--land-mask-image);
+      mask-image: var(--land-mask-image);
+    }
+
     /* Lockstep sync: the clone's height equals the document's scroll
        height, so translating it by -100% + 100dvh scrolls it by exactly
        the amount the page has scrolled. No measuring, no listeners. */
     .twin-overlay .content {
       animation: twin-scroll linear both;
       animation-timeline: scroll(root);
-      /* Own composited layer: without this, the twin's frame updates can
-         land out of step with the document scroll, flashing the base
-         copy's glyph edges through the twin during scrolling. */
+      /* Each clone gets its own composited layer, so the two twins'
+         frame updates commit together — the copies stay mutually
+         aligned, which is what keeps the horizon boundary between
+         their complementary regions clean. */
       will-change: transform;
     }
 
-    .twin-overlay .content p {
+    .twin-overlay.sky .content p {
       color: #925006;
+    }
+
+    .twin-overlay.land .content p {
+      color: #FFFAD8;
     }
 
     @keyframes twin-scroll {
@@ -138,33 +166,46 @@
     <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
   </main>
 
-  <!-- Fixed layer the JS clone is placed in, clipped by the sky
-       coverage mask. Empty without JavaScript: the base text above is
-       then the whole page. -->
-  <div class="twin-overlay"></div>
+  <!-- Fixed layers the JS clones are placed in, each clipped to one
+       side of the horizon by its complementary coverage mask. Empty
+       without JavaScript: the base text above is then the whole page. -->
+  <div class="twin-overlay sky"></div>
+  <div class="twin-overlay land"></div>
 
   <script>
-    // Option 7, "fixed-mask twin text" (docs/technique-alternatives.md):
-    // duplicate the content once at load. The clone inherits the same
-    // stylesheet and lays out against the same viewport width, so it
-    // stays registered with the original; the scroll() timeline does
-    // all the syncing with zero per-frame code.
-    const twin = document.querySelector('.content').cloneNode(true);
-    twin.setAttribute('aria-hidden', 'true');
-    document.querySelector('.twin-overlay').appendChild(twin);
+    // Option 7 refinement (docs/technique-alternatives.md): confine each
+    // colour to its own side of the horizon with complementary coverage
+    // masks, so no copy can ever paint the wrong colour in the wrong
+    // region — the sync no longer has to be frame-exact to look right.
+    // Build both clones only when scroll-driven animations exist, then
+    // mark the document so CSS turns the in-flow base into invisible
+    // ink. The class is added last: any failure above leaves the base
+    // visible as the fallback.
+    if (CSS.supports('animation-timeline', 'scroll()')) {
+      const base = document.querySelector('.content');
+      for (const overlay of document.querySelectorAll('.twin-overlay')) {
+        const twin = base.cloneNode(true);
+        twin.setAttribute('aria-hidden', 'true');
+        overlay.appendChild(twin);
+      }
+      document.documentElement.classList.add('twins');
+    }
 
-    // Re-bind the animation after a resize: WebKit captures the scroll
-    // timeline's range and the transform's percentage base when the
+    // Re-bind the animations after a resize: WebKit captures the scroll
+    // timeline's range and the transform's percentage base when an
     // animation is created and does not re-read them when layout
-    // changes, which permanently desyncs the twin. Toggling
-    // animation-name forces a fresh binding against the new geometry.
+    // changes, which permanently desyncs the twins. Toggling
+    // animation-name forces a fresh binding against the new geometry —
+    // each clone's animation is bound separately.
     let rebind;
     addEventListener('resize', () => {
       clearTimeout(rebind);
       rebind = setTimeout(() => {
-        twin.style.animationName = 'none';
-        void twin.offsetWidth; // flush so the reset takes effect
-        twin.style.animationName = '';
+        for (const twin of document.querySelectorAll('.twin-overlay .content')) {
+          twin.style.animationName = 'none';
+          void twin.offsetWidth; // flush so the reset takes effect
+          twin.style.animationName = '';
+        }
       }, 150);
     });
   </script>
