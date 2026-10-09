@@ -173,10 +173,11 @@
   <div class="twin-overlay land"></div>
 
   <script>
-    // Option 7 refinement (docs/technique-alternatives.md): confine each
-    // colour to its own side of the horizon with complementary coverage
-    // masks, so no copy can ever paint the wrong colour in the wrong
-    // region — the sync no longer has to be frame-exact to look right.
+    // Fixed-mask twin text refinement (docs/technique-alternatives.md):
+    // confine each colour to its own side of the horizon with
+    // complementary coverage masks, so no copy can ever paint the wrong
+    // colour in the wrong region — the sync no longer has to be
+    // frame-exact to look right.
     // Build both clones only when scroll-driven animations exist, then
     // mark the document so CSS turns the in-flow base into invisible
     // ink. The class is added last: any failure above leaves the base
