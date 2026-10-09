@@ -7,9 +7,12 @@ following the horizon's actual ragged silhouette. The only JavaScript is
 a few lines at page load; the browser's scroll-driven animations do all
 the syncing. No blend modes, no scroll listeners.
 
-Safari/iOS 26 added CSS scroll-driven animations, in particular the `animation-timeline` property (2026 for Edge and Chrome) making this CSS-only technique possible. (JavaScript was used to sync text across twin layers, but that's ancillary.) It's pretty new tooling and not fully supported. Pure fallback on Firefox.
+Safari/iOS 26 added CSS scroll-driven animations, in particular the `animation-timeline` property (2023 for Edge and Chrome) making this CSS-only technique possible. (JavaScript was used to sync text across twin layers, but that's ancillary.) It's pretty new tooling and not fully supported. Pure fallback on Firefox.
 
 The technique is only valuable if it can be used responsively, which remains unproven. But it's interesting enough to merit publication.
+
+This demo has seen limited testing (passing) on desktop Safari and Chrome, 
+iOS 26, simulated iOS 26, and simulated Android. 
 
 Serve the directory over HTTP and open the page from `http://localhost`:
 
