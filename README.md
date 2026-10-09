@@ -1,5 +1,11 @@
 # Text Colour Reveal Demo
 
+> **This branch is the frozen `background-attachment: fixed` method.**
+> Development of the current technique now happens on `main`, which uses
+> scroll-driven animations and complementary masks instead of a
+> viewport-fixed backdrop. This branch is preserved as a separate,
+> independent line of the project.
+
 A small, dependency-free demo of a CSS **text colour reveal** technique:
 paragraphs scroll up the page while their glyphs act as windows onto a
 viewport-fixed mask image, which dictates the text's colour directly.
