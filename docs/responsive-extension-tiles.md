@@ -65,6 +65,11 @@ that alignment. What that means per tile:
 - **The sky fill** is fully procedural: `background-color` on the
   backdrop (or a gradient, if the sky needs one), plus one procedural
   opaque layer in the sky mask sized to the strip. Zero files.
+  Implemented in `index.html` for the current backdrop:
+  `background-color: #fff` on `.background`, and the strip layer on
+  `.twin-overlay.sky`, sized `100% max(0px, calc(100% - 100vw *
+  var(--backdrop-height-to-width) + 2px))` — `100%` of the inset-0
+  box, not `100vh`, so the strip tracks the live viewport.
 
 So the expected file-count explosion does not happen: real
 coverage-twin assets are confined to horizon-crossing tiles.
